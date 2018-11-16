@@ -47,14 +47,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // let's add our portal node!
     func addPortal(hitTestResult: ARHitTestResult){
         let portalScene = SCNScene(named:"Portal.scnassets/Portal.scn")
-        let portalNode = portalScene?.rootNode.childNode(withName: "Portal", recursively: false)
+        let portalNode = portalScene!.rootNode.childNode(withName: "Portal", recursively: false)!
         let transform = hitTestResult.worldTransform
         let planeXpostion = transform.columns.3.x
         let planeYposition = transform.columns.3.y
         let planeZposition = transform.columns.3.z
-        portalNode?.position = SCNVector3(planeXpostion,planeYposition,planeZposition)
-        self.sceneView.scene.rootNode.addChildNode(portalNode!)
-    }
+        portalNode.position = SCNVector3(planeXpostion,planeYposition,planeZposition)
+        self.sceneView.scene.rootNode.addChildNode(portalNode)
+        // call the function addplane
+        self.addPlane(nodeName: "roof", portalNode: portalNode, imageName: "top")
+        self.addPlane(nodeName: "floor", portalNode: portalNode, imageName: "bottom")
+        self.addWalls(nodeName: "backWall", portalNode: portalNode, imageName: "Back")
+        self.addWalls(nodeName: "sideWallA", portalNode: portalNode, imageName: "sidewallA")
+        self.addWalls(nodeName: "sideWallB", portalNode: portalNode, imageName: "sidewallB")
+        self.addWalls(nodeName: "sideDoorA", portalNode: portalNode, imageName: "sidedoorA")
+        self.addWalls(nodeName: "sideDoorB", portalNode: portalNode, imageName: "sidedoorB")
+     }
     
 
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
@@ -66,5 +74,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3){
             self.planeDetected.isHidden = true
         }
+    }
+    
+    //function to add plane (adding the photo to the object from the Portal.scn) (recurisvely true --> the floor and the roof are not immediate children of the portal but they are immediate children of the entrance
+    
+    //adding the planes ROOF AND BOTTOM
+    func addPlane(nodeName:String, portalNode: SCNNode, imageName:String){
+        let child = portalNode.childNode(withName: nodeName, recursively: true)
+        child?.geometry?.firstMaterial?.diffuse.contents = UIImage(named:"Portal.scnassets/\(imageName).png")
+    }
+    
+    //addind the walls
+    func addWalls(nodeName:String, portalNode: SCNNode, imageName:String){
+        let child = portalNode.childNode(withName: nodeName, recursively: true)
+        child?.geometry?.firstMaterial?.diffuse.contents = UIImage(named:"Portal.scnassets/\(imageName).png")
+        
     }
 }
